@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Claude Code for iPhone</title>
+<meta name="description" content="Lleva Claude Code, el agente de programación de Anthropic, a tu iPhone. Tu servidor, tu GitHub, tu bolsillo.">
+<style>
+  :root{
+    --bg:#1b1917;
+    --surface:#262421;
+    --surface-2:#2d2a26;
+    --border:#35322e;
+    --text:#f0eee6;
+    --muted:#a39d94;
+    --accent:#d97757;
+    --accent-soft:rgba(217,119,87,.12);
+    --ok:#9cba7f;
+    --mono:ui-monospace,Menlo,'Cascadia Mono','SF Mono',Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  /* ---- language switching ---- */
+  html[data-lang="es"] [lang="en"]{display:none !important}
+  html[data-lang="en"] [lang="es"]{display:none !important}
+
+  img,svg{max-width:100%}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+  section{padding:64px 0}
+  h2{font-size:clamp(1.5rem,4.5vw,2.1rem);letter-spacing:-.02em;line-height:1.2;margin-bottom:10px}
+  .kicker{
+    display:inline-block;font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent);margin-bottom:12px;
+  }
+  .lead{color:var(--muted);max-width:640px;font-size:1.02rem}
+
+  /* ---- top bar ---- */
+  header.topbar{
+    position:sticky;top:0;z-index:50;
+    background:rgba(27,25,23,.86);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .topbar-inner{
+    display:flex;align-items:center;justify-content:space-between;
+    height:60px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;color:var(--text);font-weight:600;letter-spacing:-.01em}
+  .brand:hover{text-decoration:none}
+  .brand .star{flex:0 0 auto}
+  .brand span.name{font-size:.98rem}
+  .brand span.name em{font-style:normal;color:var(--muted);font-weight:400}
+  .lang-switch{
+    display:flex;border:1px solid var(--border);border-radius:999px;overflow:hidden;background:var(--surface);
+  }
+  .lang-switch button{
+    appearance:none;border:0;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.78rem;padding:7px 14px;cursor:pointer;
+  }
+  .lang-switch button.active{background:var(--accent);color:#1b1917;font-weight:700}
+
+  /* ---- hero ---- */
+  .hero{padding:64px 0 40px}
+  .hero-grid{display:grid;grid-template-columns:1fr;gap:48px;align-items:center}
+  .hero-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    border:1px solid var(--border);background:var(--surface);
+    border-radius:999px;padding:6px 14px;font-family:var(--mono);font-size:.74rem;color:var(--muted);
+    margin-bottom:20px;
+  }
+  .hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+  .hero h1{
+    font-size:clamp(2rem,7vw,3.3rem);line-height:1.08;letter-spacing:-.03em;margin-bottom:18px;
+  }
+  .hero h1 .orange{color:var(--accent)}
+  .hero p.sub{color:var(--muted);font-size:1.08rem;max-width:560px;margin-bottom:28px}
+  .cta-row{display:flex;flex-wrap:wrap;gap:12px}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    border-radius:12px;padding:13px 22px;font-weight:600;font-size:.95rem;
+    border:1px solid transparent;cursor:pointer;transition:transform .12s ease,background .12s ease;
+  }
+  .btn:hover{text-decoration:none;transform:translateY(-1px)}
+  .btn-primary{background:var(--accent);color:#1b1917}
+  .btn-primary:hover{background:#e08a6d}
+  .btn-ghost{background:transparent;color:var(--text);border-color:var(--border)}
+  .btn-ghost:hover{background:var(--surface)}
+  .hero-note{margin-top:16px;font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+
+  /* ---- iPhone mockup ---- */
+  .phone-stage{display:flex;justify-content:center;padding:10px 0}
+  .phone{
+    width:min(320px,86vw);
+    aspect-ratio:320/650;
+    background:#0d0c0b;
+    border:3px solid #3d3a35;
+    border-radius:48px;
+    padding:12px;
+    box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 1px #55504a inset;
+    position:relative;
+  }
+  .phone .island{
+    position:absolute;top:22px;left:50%;transform:translateX(-50%);
+    width:34%;height:26px;background:#000;border-radius:999px;z-index:3;
+  }
+  .screen{
+    width:100%;height:100%;border-radius:36px;overflow:hidden;
+    background:var(--bg);display:flex;flex-direction:column;
+    border:1px solid #2a2723;
+  }
+  .status-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 22px 4px;font-family:var(--mono);font-size:.62rem;color:var(--muted);
+  }
+  .app-head{
+    display:flex;align-items:center;gap:8px;
+    padding:10px 14px;border-bottom:1px solid var(--border);
+  }
+  .app-head .title{font-family:var(--mono);font-size:.66rem;color:var(--text)}
+  .app-head .pill{
+    margin-left:auto;font-family:var(--mono);font-size:.56rem;color:var(--ok);
+    border:1px solid var(--border);border-radius:999px;padding:2px 8px;background:var(--surface);
+  }
+  .term{
+    flex:1;padding:12px 14px;font-family:var(--mono);font-size:.6rem;line-height:1.75;
+    display:flex;flex-direction:column;gap:1px;overflow:hidden;
+  }
+  .term .ln{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .term .p{color:var(--accent)}
+  .term .c{color:var(--muted)}
+  .term .g{color:var(--ok)}
+  .term .t{color:var(--text)}
+  .term .box{
+    border:1px solid var(--border);border-radius:8px;background:var(--surface);
+    padding:6px 8px;margin:6px 0;color:var(--muted);
+  }
+  .term .cursor{
+    display:inline-block;width:.55em;height:1em;background:var(--accent);
+    vertical-align:text-bottom;animation:blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink{50%{opacity:0}}
+  .input-bar{
+    border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:8px;align-items:center;
+    background:var(--surface);
+  }
+  .input-bar .field{
+    flex:1;border:1px solid var(--border);border-radius:10px;background:var(--bg);
+    font-family:var(--mono);font-size:.6rem;color:var(--muted);padding:7px 10px;
+  }
+  .input-bar .send{
+    width:26px;height:26px;border-radius:8px;background:var(--accent);
+    display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+  }
+
+  /* ---- features ---- */
+  .grid-cards{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:14px;margin-top:34px;
+  }
+  .card{
+    background:var(--surface);border:1px solid var(--border);border-radius:16px;
+    padding:22px 20px;transition:border-color .15s ease,transform .15s ease;
+  }
+  .card:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .card .ico{
+    width:42px;height:42px;border-radius:12px;background:var(--accent-soft);
+    display:flex;align-items:center;justify-content:center;margin-bottom:14px;color:var(--accent);
+  }
+  .card h3{font-size:1rem;margin-bottom:6px;letter-spacing:-.01em}
+  .card p{color:var(--muted);font-size:.9rem}
+
+  /* ---- how it works ---- */
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:34px}
+  .step{
+    background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px 20px;
+    position:relative;
+  }
+  .step .num{
+    font-family:var(--mono);font-size:.72rem;color:var(--accent);
+    border:1px solid var(--border);border-radius:999px;padding:3px 12px;display:inline-block;margin-bottom:14px;
+    background:var(--accent-soft);
+  }
+  .step h3{font-size:1.05rem;margin-bottom:6px}
+  .step p{color:var(--muted);font-size:.92rem}
+  .step .art{margin-top:16px;display:flex;justify-content:center;color:var(--accent)}
+
+  /* ---- security ---- */
+  .sec-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:34px}
+  .sec-item{
+    display:flex;gap:14px;background:var(--surface);border:1px solid var(--border);
+    border-radius:16px;padding:20px;
+  }
+  .sec-item .ico{flex:0 0 auto;color:var(--accent);margin-top:2px}
+  .sec-item h3{font-size:.98rem;margin-bottom:4px}
+  .sec-item p{color:var(--muted);font-size:.88rem}
+
+  /* ---- pricing ---- */
+  .price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:34px;max-width:760px}
+  .price-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:30px 26px;
+    display:flex;flex-direction:column;
+  }
+  .price-card.featured{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 20px 50px rgba(217,119,87,.08)}
+  .price-card .tag{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .price-card .amount{font-size:2rem;font-weight:700;letter-spacing:-.02em;margin-bottom:4px}
+  .price-card .amount small{font-size:.9rem;font-weight:400;color:var(--muted)}
+  .price-card .desc{color:var(--muted);font-size:.9rem;margin-bottom:18px}
+  .price-card ul{list-style:none;margin:0 0 24px;display:flex;flex-direction:column;gap:9px;flex:1}
+  .price-card li{display:flex;gap:9px;font-size:.9rem;color:var(--text)}
+  .price-card li svg{flex:0 0 auto;margin-top:4px;color:var(--ok)}
+  .price-card .btn{justify-content:center}
+
+  /* ---- FAQ ---- */
+  .faq{max-width:760px;margin-top:30px}
+  .faq details{
+    border:1px solid var(--border);border-radius:14px;background:var(--surface);
+    margin-bottom:10px;overflow:hidden;
+  }
+  .faq summary{
+    cursor:pointer;list-style:none;padding:17px 20px;font-weight:600;font-size:.96rem;
+    display:flex;justify-content:space-between;align-items:center;gap:14px;
+  }
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{
+    content:"+";font-family:var(--mono);color:var(--accent);font-size:1.15rem;flex:0 0 auto;
+    transition:transform .18s ease;
+  }
+  .faq details[open] summary::after{transform:rotate(45deg)}
+  .faq .ans{padding:0 20px 18px;color:var(--muted);font-size:.92rem}
+
+  /* ---- final CTA ---- */
+  .final-cta{
+    text-align:center;background:var(--surface);border:1px solid var(--border);
+    border-radius:24px;padding:56px 24px;position:relative;overflow:hidden;
+  }
+  .final-cta::before{
+    content:"";position:absolute;inset:-40% -20% auto;height:120%;
+    background:radial-gradient(ellipse at top,rgba(217,119,87,.13),transparent 65%);
+    pointer-events:none;
+  }
+  .final-cta h2{margin-bottom:10px}
+  .final-cta p{color:var(--muted);max-width:520px;margin:0 auto 26px}
+  .final-cta .mail{
+    display:block;margin-top:16px;font-family:var(--mono);font-size:.82rem;color:var(--muted);
+  }
+
+  /* ---- footer ---- */
+  footer{border-top:1px solid var(--border);padding:40px 0 56px;margin-top:64px}
+  .foot-brand{display:flex;align-items:center;gap:10px;margin-bottom:16px;font-weight:600}
+  .foot-links{display:flex;flex-wrap:wrap;gap:18px;font-size:.86rem;margin-bottom:22px}
+  .foot-links a{color:var(--muted)}
+  .disclaimer{
+    border:1px solid var(--border);border-radius:12px;background:var(--surface);
+    padding:14px 16px;color:var(--muted);font-size:.8rem;line-height:1.55;
+  }
+  .copy{margin-top:18px;font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+
+  /* ---- responsive ---- */
+  @media(min-width:860px){
+    .hero-grid{grid-template-columns:1.1fr .9fr}
+    .hero{padding:88px 0 64px}
+  }
+  @media(max-width:420px){
+    .wrap{padding:0 14px}
+    section{padding:48px 0}
+    .brand span.name em{display:none}
+    .btn{width:100%;justify-content:center}
+    .cta-row{flex-direction:column}
+    .topbar-inner{height:56px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ TOP BAR ============ -->
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="#top" aria-label="Claude Code for iPhone">
+      <svg class="star" width="26" height="26" viewBox="0 0 32 32" fill="#d97757" aria-hidden="true">
+        <path d="M16 1.6l2.9 9.1 9.1-2.9-6.2 7.2 6.2 7.2-9.1-2.9-2.9 9.1-2.9-9.1-9.1 2.9 6.2-7.2-6.2-7.2 9.1 2.9z"/>
+      </svg>
+      <span class="name">Claude&nbsp;Code <em>for&nbsp;iPhone</em></span>
+    </a>
+    <div class="lang-switch" role="group" aria-label="Idioma / Language">
+      <button type="button" id="btn-es" class="active" onclick="setLang('es')">ES</button>
+      <button type="button" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="hero-badge">
+        <span class="dot"></span>
+        <span lang="es">sesión persistente · tmux · 24/7</span>
+        <span lang="en">persistent session · tmux · 24/7</span>
+      </span>
+
+      <h1 lang="es">Claude Code, en tu <span class="orange">bolsillo</span>.</h1>
+      <h1 lang="en">Claude Code, in your <span class="orange">pocket</span>.</h1>
+
+      <p class="sub" lang="es">
+        El agente de programación de Anthropic, funcionando en tu propio servidor y manejado
+        desde tu iPhone. Cierra la app, pierde cobertura, vete a comer: Claude sigue trabajando.
+        Cuando vuelvas, todo está donde lo dejaste.
+      </p>
+      <p class="sub" lang="en">
+        Anthropic's coding agent, running on your own server and driven from your iPhone.
+        Close the app, lose signal, go grab lunch: Claude keeps working.
+        When you come back, everything is right where you left it.
+      </p>
+
+      <div class="cta-row">
+        <a class="btn btn-primary" href="mailto:pedro@prevencion.cc?subject=Claude%20Code%20for%20iPhone">
+          <span lang="es">Pedir presupuesto</span>
+          <span lang="en">Request a quote</span>
+        </a>
+        <a class="btn btn-ghost" href="#caracteristicas">
+          <span lang="es">Ver características</span>
+          <span lang="en">See features</span>
+        </a>
+      </div>
+
+      <p class="hero-note" lang="es">Tu servidor · tu GitHub · tus datos. 9,99&nbsp;€/año de mantenimiento.</p>
+      <p class="hero-note" lang="en">Your server · your GitHub · your data. €9.99/year maintenance.</p>
+    </div>
+
+    <!-- iPhone mockup -->
+    <div class="phone-stage" aria-hidden="true">
+      <div class="phone">
+        <div class="island"></div>
+        <div class="screen">
+          <div class="status-row"><span>9:41</span><span>●●●&nbsp;5G&nbsp;▮</span></div>
+          <div class="app-head">
+            <svg width="14" height="14" viewBox="0 0 32 32" fill="#d97757"><path d="M16 1.6l2.9 9.1 9.1-2.9-6.2 7.2 6.2 7.2-9.1-2.9-2.9 9.1-2.9-9.1-9.1 2.9 6.2-7.2-6.2-7.2 9.1 2.9z"/></svg>
+            <span class="title">claude&nbsp;·&nbsp;mi-proyecto</span>
+            <span class="pill">tmux&nbsp;●</span>
+          </div>
+          <div class="term">
+            <div class="ln"><span class="p">❯</span> <span class="t">claude</span></div>
+            <div class="ln"><span class="c">╭──────────────────────────────╮</span></div>
+            <div class="ln"><span class="c">│</span> <span class="t">✻ Claude Code</span> <span class="c">v2.1 · listo   │</span></div>
+            <div class="ln"><span class="c">╰──────────────────────────────╯</span></div>
+            <div class="ln"><span class="p">❯</span> <span class="t">arregla el error del menú</span></div>
+            <div class="ln"><span class="c">⏺ Leyendo app.py…</span></div>
+            <div class="ln"><span class="g">✓</span> <span class="c">Encontrado en línea 214</span></div>
+            <div class="ln"><span class="c">⏺ Editando app.py…</span></div>
+            <div class="ln"><span class="g">✓</span> <span class="c">2 líneas cambiadas</span></div>
+            <div class="ln"><span class="c">⏺ Probando…</span></div>
+            <div class="ln"><span class="g">✓</span> <span class="c">Todo en orden</span></div>
+            <div class="box">
+              <div class="ln"><span class="g">✓</span> Guardado en GitHub</div>
+              <div class="ln"><span class="c">rama&nbsp;movil-16 → main</span></div>
+            </div>
+            <div class="ln"><span class="p">❯</span>&nbsp;<span class="cursor"></span></div>
+          </div>
+          <div class="input-bar">
+            <div class="field">Escribe una orden…</div>
+            <div class="send">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1b1917" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section id="caracteristicas">
+  <div class="wrap">
+    <span class="kicker" lang="es">Características</span>
+    <span class="kicker" lang="en">Features</span>
+    <h2 lang="es">Todo lo que necesitas para programar desde el móvil</h2>
+    <h2 lang="en">Everything you need to code from your phone</h2>
+    <p class="lead" lang="es">Pensado para usarse con una mano, en cualquier sitio, sin saber nada de terminales.</p>
+    <p class="lead" lang="en">Designed for one-handed use, anywhere, with zero terminal knowledge required.</p>
+
+    <div class="grid-cards">
+
+      <div class="card">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m6 9 3 3-3 3M12 15h6"/></svg>
+        </div>
+        <h3 lang="es">Terminal que nunca se apaga</h3>
+        <h3 lang="en">A terminal that never sleeps</h3>
+        <p lang="es">Terminal con estética Claude sobre una sesión tmux persistente. Cierra la app o pierde cobertura: Claude sigue trabajando en el servidor y todo te espera al volver.</p>
+        <p lang="en">A Claude-styled terminal on top of a persistent tmux session. Close the app or lose coverage: Claude keeps working on the server and everything is waiting when you return.</p>
+      </div>
+
+      <div class="card">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7.5C7 5 9 3 12 3s5 2 5 4.5M7 11h10a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1z"/><circle cx="12" cy="15.5" r="1.5"/></svg>
+        </div>
+        <h3 lang="es">Face ID y doble llave</h3>
+        <h3 lang="en">Face ID and two locks</h3>
+        <p lang="es">Entra con la cara (passkeys) o con contraseña más un código de 6 dígitos que cambia cada 30 segundos. Dos cerraduras para una sola puerta.</p>
+        <p lang="en">Sign in with your face (passkeys) or with a password plus a 6-digit code that changes every 30 seconds. Two locks on a single door.</p>
+      </div>
+
+      <div class="card">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="12" r="3"/><path d="M6 9v6M8.5 7.5 15 10.5M8.5 16.5 15 13.5"/></svg>
+        </div>
+        <h3 lang="es">GitHub sin complicaciones</h3>
+        <h3 lang="en">GitHub without the hassle</h3>
+        <p lang="es">Clona proyectos desde un desplegable, guarda y sube a ramas móviles, fusión automática a main, historial de cambios y un semáforo que te dice si todo está al día.</p>
+        <p lang="en">Clone projects from a dropdown, save and push to mobile branches, automatic merge to main, change history and a traffic light that tells you everything is up to date.</p>
+      </div>
+
+      <div class="card">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        </div>
+        <h3 lang="es">Tus ficheros, a la vista</h3>
+        <h3 lang="en">Your files, at a glance</h3>
+        <p lang="es">Explorador con editor de texto, visor de fotos, búsqueda por nombre y descarga en ZIP. Todo lo que hay en el servidor, tocándolo con el dedo.</p>
+        <p lang="en">A file browser with a text editor, photo viewer, name search and ZIP download. Everything on the server, one tap away.</p>
+      </div>
+
+      <div class="card">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 8-6-16-3 8H2"/></svg>
+        </div>
+        <h3 lang="es">Salud del servidor, en llano</h3>
+        <h3 lang="en">Server health, in plain words</h3>
+        <p lang="es">Gráficos de memoria, disco y procesador, y avisos explicados con frases normales: qué pasa, si es grave y qué hacer. Sin jerga.</p>
+        <p lang="en">Memory, disk and CPU charts, plus alerts explained in normal sentences: what is happening, whether it matters and what to do. No jargon.</p>
+      </div>
+
+      <div class="card">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
+        </div>
+        <h3 lang="es">Conectado a claude.ai</h3>
+        <h3 lang="en">Connected to claude.ai</h3>
+        <p lang="es">Conector MCP incluido: claude.ai puede leer tus proyectos del servidor. Pregunta por tu código desde el chat de Claude, estés donde estés.</p>
+        <p lang="en">MCP connector included: claude.ai can read the projects on your server. Ask about your code from the Claude chat, wherever you are.</p>
+      </div>
+
+      <div class="card">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15A2.5 2.5 0 0 0 6.5 22H20v-2.5"/></svg>
+        </div>
+        <h3 lang="es">Manual y órdenes explicadas</h3>
+        <h3 lang="en">Manual and commands explained</h3>
+        <p lang="es">Catálogo de las órdenes de Claude Code contado en llano, manual integrado en la propia app y un botón de memoria para que Claude recuerde lo importante.</p>
+        <p lang="en">A plain-language catalogue of Claude Code commands, a manual built into the app itself, and a memory button so Claude remembers what matters.</p>
+      </div>
+
+      <div class="card">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+        </div>
+        <h3 lang="es">Se actualiza solo</h3>
+        <h3 lang="en">Updates itself</h3>
+        <p lang="es">Autodespliegue desde GitHub: cada mejora llega a tu servidor sin que toques nada. Tú abres la app y ya está la última versión.</p>
+        <p lang="en">Auto-deploy from GitHub: every improvement reaches your server without you lifting a finger. Open the app and the latest version is already there.</p>
+      </div>
+
+      <div class="card">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/></svg>
+        </div>
+        <h3 lang="es">Hecho para el dedo, en 6 idiomas</h3>
+        <h3 lang="en">Built for your thumb, in 6 languages</h3>
+        <p lang="es">Scroll táctil por todo el historial, cuadro de eco que muestra lo que escribes y toda la app en español, inglés, francés, italiano, árabe y chino.</p>
+        <p lang="en">Touch scrolling through the whole history, an echo box that mirrors what you type, and the whole app in Spanish, English, French, Italian, Arabic and Chinese.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section id="como-funciona">
+  <div class="wrap">
+    <span class="kicker" lang="es">Cómo funciona</span>
+    <span class="kicker" lang="en">How it works</span>
+    <h2 lang="es">Tres piezas, todas tuyas</h2>
+    <h2 lang="en">Three pieces, all yours</h2>
+    <p class="lead" lang="es">Nada pasa por servidores de terceros. El circuito completo es de tu propiedad.</p>
+    <p class="lead" lang="en">Nothing passes through third-party servers. You own the entire circuit.</p>
+
+    <div class="steps">
+      <div class="step">
+        <span class="num">1</span>
+        <h3 lang="es">Tu servidor</h3>
+        <h3 lang="en">Your server</h3>
+        <p lang="es">Un pequeño servidor en la nube (VPS) que alquilas tú, a tu nombre. Ahí vive Claude Code y ahí se quedan tus proyectos.</p>
+        <p lang="en">A small cloud server (VPS) that you rent, in your name. That is where Claude Code lives and where your projects stay.</p>
+        <div class="art">
+          <svg width="90" height="70" viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <rect x="15" y="8" width="60" height="16" rx="4"/>
+            <rect x="15" y="28" width="60" height="16" rx="4"/>
+            <rect x="15" y="48" width="60" height="16" rx="4"/>
+            <circle cx="23" cy="16" r="2" fill="currentColor" stroke="none"/>
+            <circle cx="23" cy="36" r="2" fill="currentColor" stroke="none"/>
+            <circle cx="23" cy="56" r="2" fill="currentColor" stroke="none"/>
+            <path d="M45 12h22M45 32h22M45 52h22" opacity=".4"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="num">2</span>
+        <h3 lang="es">Tu iPhone</h3>
+        <h3 lang="en">Your iPhone</h3>
+        <p lang="es">Abres la app desde la pantalla de inicio, entras con Face ID y hablas con Claude como si le escribieras un mensaje.</p>
+        <p lang="en">Open the app from your home screen, sign in with Face ID and talk to Claude as if you were texting a friend.</p>
+        <div class="art">
+          <svg width="90" height="70" viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <rect x="30" y="4" width="30" height="62" rx="8"/>
+            <path d="M40 9h10" opacity=".5"/>
+            <path d="M36 20h18M36 27h12M36 34h16" opacity=".4"/>
+            <rect x="35" y="52" width="20" height="8" rx="3" opacity=".6"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="num">3</span>
+        <h3 lang="es">Tu GitHub</h3>
+        <h3 lang="en">Your GitHub</h3>
+        <p lang="es">Cada cambio se guarda con copia en tu cuenta de GitHub: historial completo, ramas móviles y fusión automática a main.</p>
+        <p lang="en">Every change is backed up to your GitHub account: full history, mobile branches and automatic merge to main.</p>
+        <div class="art">
+          <svg width="90" height="70" viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="25" cy="15" r="6"/>
+            <circle cx="25" cy="55" r="6"/>
+            <circle cx="65" cy="35" r="6"/>
+            <path d="M25 21v28M29 18.5 60 32M29 51.5 60 38"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECURITY ============ -->
+<section id="seguridad">
+  <div class="wrap">
+    <span class="kicker" lang="es">Seguridad</span>
+    <span class="kicker" lang="en">Security</span>
+    <h2 lang="es">Tus datos son tuyos. De verdad.</h2>
+    <h2 lang="en">Your data is yours. For real.</h2>
+    <p class="lead" lang="es">No hay cuentas nuestras de por medio ni servidores compartidos: el servidor es del cliente y las llaves también.</p>
+    <p class="lead" lang="en">No accounts of ours in the middle, no shared servers: the client owns the server and the keys too.</p>
+
+    <div class="sec-list">
+      <div class="sec-item">
+        <div class="ico">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15 19 4M18 5l2 2M15 8l2 2"/></svg>
+        </div>
+        <div>
+          <h3 lang="es">La llave no sale del iPhone</h3>
+          <h3 lang="en">The key never leaves your iPhone</h3>
+          <p lang="es">Con las passkeys, tu llave secreta se guarda en el chip seguro del teléfono. Ni el servidor la conoce, ni se puede robar por internet.</p>
+          <p lang="en">With passkeys, your secret key lives in the phone's secure chip. The server never sees it and it cannot be stolen over the internet.</p>
+        </div>
+      </div>
+
+      <div class="sec-item">
+        <div class="ico">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div>
+          <h3 lang="es">Doble factor siempre</h3>
+          <h3 lang="en">Two-factor, always</h3>
+          <p lang="es">Aunque alguien adivinase tu contraseña, sin el código de 6 dígitos de tu móvil no entra. Punto.</p>
+          <p lang="en">Even if someone guessed your password, without the 6-digit code from your phone they do not get in. Period.</p>
+        </div>
+      </div>
+
+      <div class="sec-item">
+        <div class="ico">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+        <div>
+          <h3 lang="es">Todo viaja cifrado</h3>
+          <h3 lang="en">Everything travels encrypted</h3>
+          <p lang="es">La conexión entre tu iPhone y tu servidor va siempre por HTTPS con certificado propio, igual que la web de tu banco.</p>
+          <p lang="en">The connection between your iPhone and your server always runs over HTTPS with its own certificate, just like your bank's website.</p>
+        </div>
+      </div>
+
+      <div class="sec-item">
+        <div class="ico">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div>
+          <h3 lang="es">Servidor propio del cliente</h3>
+          <h3 lang="en">The client's own server</h3>
+          <p lang="es">El VPS está contratado a tu nombre y solo tú tienes las claves. Tus proyectos, tu código y tus conversaciones no pasan por nadie más.</p>
+          <p lang="en">The VPS is contracted in your name and only you hold the keys. Your projects, your code and your conversations pass through no one else.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section id="precios">
+  <div class="wrap">
+    <span class="kicker" lang="es">Precios</span>
+    <span class="kicker" lang="en">Pricing</span>
+    <h2 lang="es">Un pago por la puesta en marcha, casi nada al año</h2>
+    <h2 lang="en">One payment to set it up, next to nothing per year</h2>
+    <p class="lead" lang="es">Aparte necesitarás tus propias cuentas: suscripción de Anthropic, GitHub (gratis) y un VPS pequeño.</p>
+    <p class="lead" lang="en">Separately you will need your own accounts: an Anthropic subscription, GitHub (free) and a small VPS.</p>
+
+    <div class="price-grid">
+      <div class="price-card">
+        <span class="tag" lang="es">Instalación completa</span>
+        <span class="tag" lang="en">Full installation</span>
+        <div class="amount" lang="es">Pedir presupuesto</div>
+        <div class="amount" lang="en">Request a quote</div>
+        <p class="desc" lang="es">Pago único. Te lo dejamos funcionando en tu servidor y en tu iPhone.</p>
+        <p class="desc" lang="en">One-off payment. We leave it running on your server and on your iPhone.</p>
+        <ul>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span lang="es">Instalación en tu VPS con HTTPS</span><span lang="en">Installation on your VPS with HTTPS</span></li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span lang="es">Face ID, doble factor y GitHub configurados</span><span lang="en">Face ID, two-factor and GitHub configured</span></li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span lang="es">Puesta en marcha guiada en tu iPhone</span><span lang="en">Guided setup on your iPhone</span></li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span lang="es">Guía de instalación imprimible incluida</span><span lang="en">Printable installation guide included</span></li>
+        </ul>
+        <a class="btn btn-ghost" href="mailto:pedro@prevencion.cc?subject=Presupuesto%20Claude%20Code%20for%20iPhone">
+          <span lang="es">Escríbenos</span><span lang="en">Write to us</span>
+        </a>
+      </div>
+
+      <div class="price-card featured">
+        <span class="tag" lang="es">Mantenimiento</span>
+        <span class="tag" lang="en">Maintenance</span>
+        <div class="amount">9,99&nbsp;€&nbsp;<small lang="es">/ año</small><small lang="en">/ year</small></div>
+        <p class="desc" lang="es">La cuota más baja que verás este año. Para que nunca te quedes atrás.</p>
+        <p class="desc" lang="en">The lowest fee you will see this year. So you never fall behind.</p>
+        <ul>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span lang="es">Actualizaciones automáticas desde GitHub</span><span lang="en">Automatic updates from GitHub</span></li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span lang="es">Mejoras y funciones nuevas incluidas</span><span lang="en">Improvements and new features included</span></li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span lang="es">Soporte por correo</span><span lang="en">Email support</span></li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span lang="es">Sin permanencia: se renueva año a año</span><span lang="en">No lock-in: renews year by year</span></li>
+        </ul>
+        <a class="btn btn-primary" href="mailto:pedro@prevencion.cc?subject=Claude%20Code%20for%20iPhone">
+          <span lang="es">Empezar</span><span lang="en">Get started</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq">
+  <div class="wrap">
+    <span class="kicker">FAQ</span>
+    <h2 lang="es">Preguntas frecuentes</h2>
+    <h2 lang="en">Frequently asked questions</h2>
+
+    <div class="faq">
+      <details>
+        <summary lang="es">¿Necesito saber programar?</summary>
+        <summary lang="en">Do I need to know how to code?</summary>
+        <div class="ans" lang="es">No. Le escribes a Claude lo que quieres con tus palabras («arregla el botón que no responde», «añade una página de contacto») y él hace el trabajo. La app incluye además un manual y un catálogo de órdenes explicado en llano.</div>
+        <div class="ans" lang="en">No. You tell Claude what you want in your own words ("fix the button that doesn't respond", "add a contact page") and it does the work. The app also includes a manual and a plain-language catalogue of commands.</div>
+      </details>
+
+      <details>
+        <summary lang="es">¿Qué pasa si cierro la app o pierdo la cobertura?</summary>
+        <summary lang="en">What happens if I close the app or lose signal?</summary>
+        <div class="ans" lang="es">Nada malo. Claude trabaja en tu servidor, no en el teléfono, dentro de una sesión tmux persistente. Puedes cerrar la app, meterte en un túnel o apagar el móvil: cuando vuelvas a abrirla, la conversación y el trabajo siguen exactamente donde estaban.</div>
+        <div class="ans" lang="en">Nothing bad. Claude works on your server, not on the phone, inside a persistent tmux session. You can close the app, drive through a tunnel or switch the phone off: when you open it again, the conversation and the work are exactly where they were.</div>
+      </details>
+
+      <details>
+        <summary lang="es">¿Dónde se guardan mis proyectos y mis datos?</summary>
+        <summary lang="en">Where are my projects and data stored?</summary>
+        <div class="ans" lang="es">En tu propio servidor, contratado a tu nombre, y con copia en tu cuenta de GitHub. Nosotros no guardamos nada tuyo: instalamos el programa y las llaves se quedan contigo.</div>
+        <div class="ans" lang="en">On your own server, contracted in your name, with a backup in your GitHub account. We keep nothing of yours: we install the software and the keys stay with you.</div>
+      </details>
+
+      <details>
+        <summary lang="es">¿Qué necesito para empezar?</summary>
+        <summary lang="en">What do I need to get started?</summary>
+        <div class="ans" lang="es">Tres cuentas: una suscripción de Anthropic (Pro o Max), una cuenta de GitHub (gratuita) y un servidor VPS pequeño con un dominio. La guía de instalación te lleva paso a paso, y con la instalación completa lo hacemos por ti.</div>
+        <div class="ans" lang="en">Three accounts: an Anthropic subscription (Pro or Max), a GitHub account (free) and a small VPS with a domain. The installation guide walks you through it step by step, and with the full installation we do it for you.</div>
+      </details>
+
+      <details>
+        <summary lang="es">¿Funciona en Android o en el ordenador?</summary>
+        <summary lang="en">Does it work on Android or on a computer?</summary>
+        <div class="ans" lang="es">Sí: al ser una aplicación web, se abre en cualquier navegador moderno. Está diseñada al milímetro para iPhone (Face ID, añadir a pantalla de inicio, gestos táctiles), pero desde Android o un ordenador también puedes usarla.</div>
+        <div class="ans" lang="en">Yes: being a web application, it opens in any modern browser. It is designed down to the millimetre for iPhone (Face ID, add to home screen, touch gestures), but you can also use it from Android or a computer.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section>
+  <div class="wrap">
+    <div class="final-cta">
+      <svg width="40" height="40" viewBox="0 0 32 32" fill="#d97757" aria-hidden="true" style="margin-bottom:18px">
+        <path d="M16 1.6l2.9 9.1 9.1-2.9-6.2 7.2 6.2 7.2-9.1-2.9-2.9 9.1-2.9-9.1-9.1 2.9 6.2-7.2-6.2-7.2 9.1 2.9z"/>
+      </svg>
+      <h2 lang="es">Tu servidor. Tu código. Tu bolsillo.</h2>
+      <h2 lang="en">Your server. Your code. Your pocket.</h2>
+      <p lang="es">Cuéntanos qué quieres construir y te preparamos un presupuesto sin compromiso.</p>
+      <p lang="en">Tell us what you want to build and we will prepare a no-obligation quote.</p>
+      <a class="btn btn-primary" href="mailto:pedro@prevencion.cc?subject=Claude%20Code%20for%20iPhone">
+        <span lang="es">Pedir presupuesto</span>
+        <span lang="en">Request a quote</span>
+      </a>
+      <a class="mail" href="mailto:pedro@prevencion.cc">pedro@prevencion.cc</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="foot-brand">
+      <svg width="22" height="22" viewBox="0 0 32 32" fill="#d97757" aria-hidden="true">
+        <path d="M16 1.6l2.9 9.1 9.1-2.9-6.2 7.2 6.2 7.2-9.1-2.9-2.9 9.1-2.9-9.1-9.1 2.9 6.2-7.2-6.2-7.2 9.1 2.9z"/>
+      </svg>
+      <span>Claude Code for iPhone</span>
+    </div>
+    <div class="foot-links">
+      <a href="#caracteristicas"><span lang="es">Características</span><span lang="en">Features</span></a>
+      <a href="#seguridad"><span lang="es">Seguridad</span><span lang="en">Security</span></a>
+      <a href="#precios"><span lang="es">Precios</span><span lang="en">Pricing</span></a>
+      <a href="#faq">FAQ</a>
+      <a href="mailto:pedro@prevencion.cc"><span lang="es">Contacto</span><span lang="en">Contact</span></a>
+    </div>
+    <p class="disclaimer" lang="es">
+      Producto independiente desarrollado por un tercero. Claude y Claude Code son marcas de
+      Anthropic&nbsp;PBC; este producto no está afiliado a, ni respaldado por, Anthropic.
+    </p>
+    <p class="disclaimer" lang="en">
+      Independent product developed by a third party. Claude and Claude Code are trademarks of
+      Anthropic&nbsp;PBC; this product is not affiliated with, nor endorsed by, Anthropic.
+    </p>
+    <p class="copy">© 2026 · pedro@prevencion.cc</p>
+  </div>
+</footer>
+
+<script>
+  function setLang(lang){
+    document.documentElement.setAttribute('data-lang', lang);
+    document.documentElement.setAttribute('lang', lang);
+    document.getElementById('btn-es').classList.toggle('active', lang === 'es');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    document.title = lang === 'es' ? 'Claude Code for iPhone' : 'Claude Code for iPhone';
+    try{ localStorage.setItem('ccfi-lang', lang); }catch(e){}
+  }
+  (function(){
+    var saved = null;
+    try{ saved = localStorage.getItem('ccfi-lang'); }catch(e){}
+    if(saved === 'en' || saved === 'es'){ setLang(saved); }
+  })();
+</script>
+
+</body>
+</html>

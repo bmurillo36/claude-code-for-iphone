@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía de instalación — Claude Code for iPhone</title>
+<style>
+  @page{ size:A4; margin:1.5cm; }
+
+  :root{
+    --ink:#1b1917;
+    --muted:#6b6459;
+    --accent:#d97757;
+    --accent-soft:#fdf1ec;
+    --line:#e4ded4;
+    --paper:#ffffff;
+    --code-bg:#26241f;
+    --code-text:#f0eee6;
+    --mono:ui-monospace,Menlo,'Cascadia Mono','SF Mono',Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{background:#efece6}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.6;
+    max-width:21cm;
+    margin:0 auto;
+    padding:1.2cm 1.4cm;
+  }
+  @media print{
+    html{background:#fff}
+    body{max-width:none;padding:0}
+    a{color:var(--ink)}
+  }
+  a{color:var(--accent)}
+  svg{max-width:100%}
+
+  .page{page-break-before:always;padding-top:.4cm}
+  .no-break{page-break-inside:avoid}
+
+  /* ---------- portada ---------- */
+  .cover{
+    min-height:24cm;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    text-align:center;
+  }
+  .cover .star{margin-bottom:26px}
+  .cover .over{
+    font-family:var(--mono);font-size:.8rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:14px;
+  }
+  .cover h1{font-size:2.7rem;line-height:1.12;letter-spacing:-.02em;max-width:14cm}
+  .cover .sub{color:var(--muted);font-size:1.1rem;margin-top:16px;max-width:12cm}
+  .cover .meta{
+    margin-top:44px;border-top:2px solid var(--accent);padding-top:18px;
+    font-family:var(--mono);font-size:.8rem;color:var(--muted);
+  }
+  .cover .promise{
+    margin-top:34px;background:var(--accent-soft);border:1px solid #f3cfc0;
+    border-radius:14px;padding:16px 26px;max-width:13cm;font-size:.95rem;
+  }
+
+  /* ---------- cabecera de paso ---------- */
+  .step-head{display:flex;align-items:flex-start;gap:22px;margin-bottom:8px}
+  .step-num{
+    font-size:5.4rem;font-weight:800;line-height:.9;color:var(--accent);
+    font-family:var(--mono);letter-spacing:-.05em;flex:0 0 auto;
+  }
+  .step-title h2{font-size:1.75rem;letter-spacing:-.02em;line-height:1.15;padding-top:10px}
+  .step-title .strap{color:var(--muted);font-size:.98rem;margin-top:6px}
+  .rule{height:3px;background:var(--accent);border:0;width:64px;margin:16px 0 22px;border-radius:2px}
+
+  p{margin-bottom:12px}
+  .plain{font-size:1rem}
+  .note{
+    background:var(--accent-soft);border-left:4px solid var(--accent);
+    padding:12px 16px;border-radius:0 10px 10px 0;font-size:.93rem;margin:16px 0;
+  }
+  .note strong{color:var(--accent)}
+
+  ul.check{list-style:none;margin:14px 0}
+  ul.check li{
+    padding-left:30px;position:relative;margin-bottom:10px;font-size:.97rem;
+  }
+  ul.check li::before{
+    content:"✓";position:absolute;left:0;top:0;
+    color:var(--accent);font-weight:800;font-size:1.05rem;
+  }
+  ol.pasos{margin:14px 0 14px 22px}
+  ol.pasos li{margin-bottom:10px;font-size:.97rem}
+  ol.pasos li strong{color:var(--ink)}
+
+  .code{
+    background:var(--code-bg);color:var(--code-text);
+    font-family:var(--mono);font-size:.86rem;line-height:1.7;
+    border-radius:12px;padding:14px 18px;margin:12px 0;
+    white-space:pre-wrap;word-break:break-all;
+  }
+  .code .cm{color:#a39d94}
+  .code .hl{color:#e5a084}
+  code.inline{
+    font-family:var(--mono);font-size:.88em;background:#f2efe9;
+    border:1px solid var(--line);border-radius:6px;padding:1px 7px;white-space:nowrap;
+  }
+
+  .diagram{
+    margin:22px auto;display:flex;justify-content:center;
+    border:1px solid var(--line);border-radius:14px;padding:20px 12px;background:#fbfaf7;
+  }
+
+  table.cmds{width:100%;border-collapse:collapse;margin:14px 0;font-size:.92rem}
+  table.cmds th{
+    text-align:left;font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--accent);
+    padding:6px 10px;
+  }
+  table.cmds td{border-bottom:1px solid var(--line);padding:9px 10px;vertical-align:top}
+  table.cmds td:first-child{font-family:var(--mono);font-size:.82rem;white-space:nowrap}
+
+  .foot-tag{
+    margin-top:26px;font-family:var(--mono);font-size:.72rem;color:var(--muted);
+    border-top:1px solid var(--line);padding-top:10px;
+    display:flex;justify-content:space-between;
+  }
+
+  /* ---------- página final ---------- */
+  .support{
+    text-align:center;padding-top:3cm;
+  }
+  .support h2{font-size:2rem;margin:18px 0 10px}
+  .support .mail{
+    display:inline-block;margin:18px 0 8px;font-family:var(--mono);font-size:1.05rem;
+    background:var(--accent-soft);border:1px solid #f3cfc0;border-radius:12px;padding:12px 26px;
+    color:var(--ink);text-decoration:none;
+  }
+  .legal{
+    margin-top:2.2cm;border:1px solid var(--line);border-radius:12px;
+    padding:16px 22px;font-size:.85rem;color:var(--muted);text-align:left;
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== PORTADA ==================== -->
+<section class="cover">
+  <svg class="star" width="84" height="84" viewBox="0 0 32 32" fill="#d97757" aria-hidden="true">
+    <path d="M16 1.6l2.9 9.1 9.1-2.9-6.2 7.2 6.2 7.2-9.1-2.9-2.9 9.1-2.9-9.1-9.1 2.9 6.2-7.2-6.2-7.2 9.1 2.9z"/>
+  </svg>
+  <div class="over">Guía de instalación</div>
+  <h1>Claude Code<br>for iPhone</h1>
+  <p class="sub">De cero a programar desde tu iPhone en seis pasos. Explicado en llano, sin tecnicismos, para hacerlo con calma y una taza de café.</p>
+  <div class="promise">
+    No hace falta saber programar. Solo hay que seguir los pasos en orden,
+    copiar los comandos tal cual aparecen y respirar hondo. Si algo se atasca,
+    al final de esta guía tienes el correo de soporte.
+  </div>
+  <div class="meta">Versión 1.0 · 2026 · pedro@prevencion.cc</div>
+</section>
+
+<!-- ==================== PASO 1 ==================== -->
+<section class="page">
+  <div class="step-head">
+    <div class="step-num">1</div>
+    <div class="step-title">
+      <h2>Crear las tres cuentas</h2>
+      <p class="strap">Los tres cimientos sobre los que se apoya todo lo demás.</p>
+    </div>
+  </div>
+  <hr class="rule">
+
+  <p class="plain">Antes de instalar nada, necesitas tres cuentas. Las tres se crean desde el navegador y se hacen en unos minutos cada una.</p>
+
+  <ul class="check">
+    <li><strong>Anthropic</strong> — en <code class="inline">claude.ai</code>, con suscripción <strong>Pro</strong> o <strong>Max</strong>. Es el cerebro: sin ella, Claude no piensa.</li>
+    <li><strong>GitHub</strong> — en <code class="inline">github.com</code>, la cuenta gratuita basta. Es la caja fuerte donde se guardan copias de todos tus proyectos.</li>
+    <li><strong>IONOS</strong> — en <code class="inline">ionos.es</code>, con un <strong>dominio</strong> a tu nombre (por ejemplo <code class="inline">tunegocio.com</code>). Es la dirección de tu casa en internet.</li>
+  </ul>
+
+  <div class="diagram no-break">
+    <svg width="560" height="180" viewBox="0 0 560 180" font-family="ui-monospace,Menlo,monospace" aria-label="Las tres cuentas necesarias">
+      <!-- tarjeta Anthropic -->
+      <rect x="10" y="30" width="160" height="110" rx="14" fill="#fdf1ec" stroke="#d97757" stroke-width="2"/>
+      <path transform="translate(74,48) scale(1.05)" d="M16 1.6l2.9 9.1 9.1-2.9-6.2 7.2 6.2 7.2-9.1-2.9-2.9 9.1-2.9-9.1-9.1 2.9 6.2-7.2-6.2-7.2 9.1 2.9z" fill="#d97757"/>
+      <text x="90" y="105" text-anchor="middle" font-size="13" fill="#1b1917" font-weight="bold">Anthropic</text>
+      <text x="90" y="123" text-anchor="middle" font-size="10" fill="#6b6459">Pro o Max</text>
+
+      <!-- tarjeta GitHub -->
+      <rect x="200" y="30" width="160" height="110" rx="14" fill="#fbfaf7" stroke="#1b1917" stroke-width="2"/>
+      <circle cx="280" cy="66" r="16" fill="none" stroke="#1b1917" stroke-width="2.5"/>
+      <circle cx="272" cy="63" r="2" fill="#1b1917"/>
+      <circle cx="288" cy="63" r="2" fill="#1b1917"/>
+      <path d="M272 74q8 6 16 0" fill="none" stroke="#1b1917" stroke-width="2.5" stroke-linecap="round"/>
+      <text x="280" y="105" text-anchor="middle" font-size="13" fill="#1b1917" font-weight="bold">GitHub</text>
+      <text x="280" y="123" text-anchor="middle" font-size="10" fill="#6b6459">cuenta gratuita</text>
+
+      <!-- tarjeta IONOS -->
+      <rect x="390" y="30" width="160" height="110" rx="14" fill="#fbfaf7" stroke="#1b1917" stroke-width="2"/>
+      <circle cx="470" cy="66" r="16" fill="none" stroke="#1b1917" stroke-width="2.5"/>
+      <path d="M454 66h32M470 50a24 24 0 0 1 0 32M470 50a24 24 0 0 0 0 32" fill="none" stroke="#1b1917" stroke-width="2" transform="scale(1)"/>
+      <text x="470" y="105" text-anchor="middle" font-size="13" fill="#1b1917" font-weight="bold">IONOS</text>
+      <text x="470" y="123" text-anchor="middle" font-size="10" fill="#6b6459">con dominio</text>
+
+      <text x="185" y="90" text-anchor="middle" font-size="16" fill="#d97757">+</text>
+      <text x="375" y="90" text-anchor="middle" font-size="16" fill="#d97757">+</text>
+      <text x="280" y="168" text-anchor="middle" font-size="11" fill="#6b6459">cerebro + caja fuerte + dirección = todo lo que hace falta</text>
+    </svg>
+  </div>
+
+  <div class="note"><strong>Consejo:</strong> apunta en papel el usuario y la contraseña de cada cuenta. Las vas a necesitar en los pasos siguientes y es un mal momento para jugar a adivinarlas.</div>
+
+  <div class="foot-tag"><span>Claude Code for iPhone · Guía de instalación</span><span>Paso 1 de 6</span></div>
+</section>
+
+<!-- ==================== PASO 2 ==================== -->
+<section class="page">
+  <div class="step-head">
+    <div class="step-num">2</div>
+    <div class="step-title">
+      <h2>Crear el servidor y darle nombre</h2>
+      <p class="strap">Un VPS pequeño en IONOS y un registro DNS que lo apunte.</p>
+    </div>
+  </div>
+  <hr class="rule">
+
+  <p class="plain">Un VPS es un ordenador pequeño que vive en un centro de datos y no se apaga nunca. Ahí es donde va a trabajar Claude, aunque tu iPhone esté en el bolsillo.</p>
+
+  <ol class="pasos">
+    <li>Entra en tu panel de <strong>IONOS</strong> y contrata un <strong>VPS con Ubuntu</strong> (el modelo pequeño sirve de sobra).</li>
+    <li>Cuando te lo entreguen, apunta dos cosas: la <strong>dirección IP</strong> del servidor (cuatro números separados por puntos) y la <strong>contraseña de root</strong>.</li>
+    <li>Ve a la sección de <strong>Dominios &amp; SSL → DNS</strong> de tu dominio y crea un <strong>registro de tipo A</strong>:
+      <ul class="check">
+        <li>Nombre del registro: <code class="inline">code</code></li>
+        <li>Valor: la <strong>IP de tu servidor</strong></li>
+      </ul>
+    </li>
+  </ol>
+
+  <p class="plain">Con eso, la dirección <code class="inline">code.tudominio.com</code> pasa a ser la puerta de tu servidor. Es la dirección que escribirás en el iPhone.</p>
+
+  <div class="diagram no-break">
+    <svg width="560" height="150" viewBox="0 0 560 150" font-family="ui-monospace,Menlo,monospace" aria-label="El dominio apunta al servidor">
+      <!-- dominio -->
+      <rect x="15" y="40" width="215" height="66" rx="12" fill="#fdf1ec" stroke="#d97757" stroke-width="2"/>
+      <text x="122" y="68" text-anchor="middle" font-size="14" fill="#1b1917" font-weight="bold">code.tudominio.com</text>
+      <text x="122" y="90" text-anchor="middle" font-size="10" fill="#6b6459">tu dirección en internet</text>
+
+      <!-- flecha -->
+      <path d="M240 73h70" stroke="#d97757" stroke-width="3" fill="none"/>
+      <path d="M310 73l-10-6v12z" fill="#d97757"/>
+      <text x="275" y="60" text-anchor="middle" font-size="10" fill="#d97757">registro A</text>
+
+      <!-- servidor -->
+      <rect x="330" y="26" width="215" height="94" rx="12" fill="#fbfaf7" stroke="#1b1917" stroke-width="2"/>
+      <rect x="350" y="42" width="175" height="18" rx="5" fill="none" stroke="#1b1917" stroke-width="2"/>
+      <rect x="350" y="66" width="175" height="18" rx="5" fill="none" stroke="#1b1917" stroke-width="2"/>
+      <circle cx="359" cy="51" r="2.5" fill="#d97757"/>
+      <circle cx="359" cy="75" r="2.5" fill="#d97757"/>
+      <text x="437" y="106" text-anchor="middle" font-size="11" fill="#6b6459">VPS Ubuntu · IP 203.0.113.25</text>
+    </svg>
+  </div>
+
+  <div class="note"><strong>Paciencia:</strong> el registro DNS puede tardar entre unos minutos y una hora en «propagarse». Es normal. Aprovecha para ir al paso 3.</div>
+
+  <div class="foot-tag"><span>Claude Code for iPhone · Guía de instalación</span><span>Paso 2 de 6</span></div>
+</section>
+
+<!-- ==================== PASO 3 ==================== -->
+<section class="page">
+  <div class="step-head">
+    <div class="step-num">3</div>
+    <div class="step-title">
+      <h2>Subir e instalar</h2>
+      <p class="strap">Tres comandos copiados tal cual y cuatro preguntas del instalador.</p>
+    </div>
+  </div>
+  <hr class="rule">
+
+  <p class="plain">Abre un terminal en tu ordenador (en Windows, la aplicación «PowerShell»; en Mac, «Terminal»), colócate en la carpeta donde tienes <code class="inline">claude-movil</code> y escribe estos comandos, <strong>uno a uno</strong>, sustituyendo <code class="inline">TU_IP</code> por la IP de tu servidor.</p>
+
+  <p><strong>1. Subir la carpeta al servidor:</strong></p>
+  <div class="code"><span class="hl">scp -r claude-movil root@TU_IP:/root/</span></div>
+
+  <p><strong>2. Entrar en el servidor:</strong></p>
+  <div class="code"><span class="hl">ssh root@TU_IP</span></div>
+
+  <p><strong>3. Lanzar el instalador:</strong></p>
+  <div class="code"><span class="hl">cd /root/claude-movil &amp;&amp; bash instalar.sh</span></div>
+
+  <p class="plain">El instalador trabaja solo durante unos minutos. Antes de empezar te hace <strong>cuatro preguntas</strong>. Ten las respuestas preparadas:</p>
+
+  <ol class="pasos">
+    <li><strong>Tu dominio</strong> — escribe la dirección completa del paso 2: <code class="inline">code.tudominio.com</code></li>
+    <li><strong>Tu correo</strong> — se usa para emitir el certificado HTTPS (el candado del navegador).</li>
+    <li><strong>Nombre de usuario</strong> — el nombre con el que entrarás desde el iPhone.</li>
+    <li><strong>Contraseña</strong> — elige una larga y guárdala bien; en el paso 4 le sumaremos el código de 6 dígitos.</li>
+  </ol>
+
+  <div class="diagram no-break">
+    <svg width="560" height="130" viewBox="0 0 560 130" font-family="ui-monospace,Menlo,monospace" aria-label="Del ordenador al servidor">
+      <!-- portátil -->
+      <rect x="30" y="34" width="120" height="66" rx="8" fill="#fbfaf7" stroke="#1b1917" stroke-width="2"/>
+      <path d="M18 100h144l-10 14H28z" fill="#fbfaf7" stroke="#1b1917" stroke-width="2"/>
+      <text x="90" y="62" text-anchor="middle" font-size="10" fill="#d97757">scp · ssh</text>
+      <text x="90" y="80" text-anchor="middle" font-size="10" fill="#6b6459">tu ordenador</text>
+
+      <!-- flecha con carpeta -->
+      <path d="M180 72h180" stroke="#d97757" stroke-width="3" fill="none" stroke-dasharray="8 6"/>
+      <path d="M360 72l-11-7v14z" fill="#d97757"/>
+      <path d="M245 38h20l6 6h24v22h-50z" fill="#fdf1ec" stroke="#d97757" stroke-width="2"/>
+      <text x="270" y="30" text-anchor="middle" font-size="10" fill="#6b6459">claude-movil</text>
+
+      <!-- servidor -->
+      <rect x="390" y="26" width="140" height="88" rx="12" fill="#fbfaf7" stroke="#1b1917" stroke-width="2"/>
+      <rect x="405" y="40" width="110" height="16" rx="4" fill="none" stroke="#1b1917" stroke-width="2"/>
+      <rect x="405" y="62" width="110" height="16" rx="4" fill="none" stroke="#1b1917" stroke-width="2"/>
+      <circle cx="413" cy="48" r="2.5" fill="#d97757"/>
+      <circle cx="413" cy="70" r="2.5" fill="#d97757"/>
+      <text x="460" y="100" text-anchor="middle" font-size="10" fill="#6b6459">/root/claude-movil</text>
+    </svg>
+  </div>
+
+  <div class="note"><strong>Cuando termine</strong>, el instalador te dirá algo como <em>«Instalación completada — abre https://code.tudominio.com»</em>. Ese es tu momento de gloria: pasa al paso 4 con el iPhone en la mano.</div>
+
+  <div class="foot-tag"><span>Claude Code for iPhone · Guía de instalación</span><span>Paso 3 de 6</span></div>
+</section>
+
+<!-- ==================== PASO 4 ==================== -->
+<section class="page">
+  <div class="step-head">
+    <div class="step-num">4</div>
+    <div class="step-title">
+      <h2>Primer acceso desde el iPhone</h2>
+      <p class="strap">Entrar, blindar la puerta y poner a Claude a trabajar.</p>
+    </div>
+  </div>
+  <hr class="rule">
+
+  <ol class="pasos">
+    <li><strong>Entra</strong> — abre Safari, escribe <code class="inline">https://code.tudominio.com</code> y accede con el usuario y la contraseña del paso 3.</li>
+    <li><strong>Activa el código de 6 dígitos</strong> — la app te enseñará un código QR. Ábrelo con la app <strong>Contraseñas</strong> del iPhone: desde ese momento, el teléfono genera un código nuevo cada 30 segundos que se pedirá al entrar.</li>
+    <li><strong>Añádela a la pantalla de inicio</strong> — en Safari, toca el botón de compartir y elige <strong>«Añadir a pantalla de inicio»</strong>. Tendrás el icono junto a tus demás apps, a pantalla completa.</li>
+    <li><strong>Arranca Claude</strong> — dentro de la app, toca <strong>Más → Iniciar Claude</strong>. Aparecerá un enlace: ábrelo y entra con tu <strong>cuenta de Anthropic</strong>. Esto solo se hace la primera vez.</li>
+    <li><strong>Opcional: Face ID</strong> — en los ajustes de la app, activa la entrada con passkey. A partir de ahí, entras con la cara y sin teclear nada.</li>
+  </ol>
+
+  <div class="diagram no-break">
+    <svg width="560" height="170" viewBox="0 0 560 170" font-family="ui-monospace,Menlo,monospace" aria-label="Primer acceso en el iPhone">
+      <!-- iPhone -->
+      <rect x="40" y="12" width="86" height="146" rx="16" fill="#fbfaf7" stroke="#1b1917" stroke-width="2.5"/>
+      <rect x="68" y="20" width="30" height="7" rx="3.5" fill="#1b1917"/>
+      <rect x="52" y="38" width="62" height="10" rx="3" fill="#fdf1ec" stroke="#d97757" stroke-width="1.5"/>
+      <text x="83" y="66" text-anchor="middle" font-size="9" fill="#6b6459">usuario</text>
+      <rect x="52" y="72" width="62" height="9" rx="3" fill="none" stroke="#1b1917" stroke-width="1.5"/>
+      <text x="83" y="98" text-anchor="middle" font-size="9" fill="#6b6459">código</text>
+      <text x="83" y="116" text-anchor="middle" font-size="12" fill="#d97757" font-weight="bold">4 8 2 9 1 7</text>
+      <rect x="52" y="126" width="62" height="14" rx="5" fill="#d97757"/>
+      <text x="83" y="136" text-anchor="middle" font-size="8" fill="#ffffff">Entrar</text>
+
+      <!-- flecha 1 -->
+      <path d="M150 85h60" stroke="#d97757" stroke-width="3"/>
+      <path d="M210 85l-10-6v12z" fill="#d97757"/>
+
+      <!-- Face ID -->
+      <rect x="230" y="45" width="90" height="80" rx="14" fill="#fdf1ec" stroke="#d97757" stroke-width="2"/>
+      <path d="M252 62v-6a5 5 0 0 1 5-5h6M296 51h6a5 5 0 0 1 5 5v6M307 108v6a5 5 0 0 1-5 5h-6M263 119h-6a5 5 0 0 1-5-5v-6" fill="none" stroke="#d97757" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="266" cy="78" r="2.5" fill="#1b1917"/>
+      <circle cx="292" cy="78" r="2.5" fill="#1b1917"/>
+      <path d="M266 97q13 10 26 0" fill="none" stroke="#1b1917" stroke-width="2.5" stroke-linecap="round"/>
+      <text x="275" y="145" text-anchor="middle" font-size="10" fill="#6b6459">Face ID (opcional)</text>
+
+      <!-- flecha 2 -->
+      <path d="M345 85h60" stroke="#d97757" stroke-width="3"/>
+      <path d="M405 85l-10-6v12z" fill="#d97757"/>
+
+      <!-- estrella / Claude en marcha -->
+      <rect x="425" y="45" width="110" height="80" rx="14" fill="#fbfaf7" stroke="#1b1917" stroke-width="2"/>
+      <path transform="translate(462,58) scale(1.1)" d="M16 1.6l2.9 9.1 9.1-2.9-6.2 7.2 6.2 7.2-9.1-2.9-2.9 9.1-2.9-9.1-9.1 2.9 6.2-7.2-6.2-7.2 9.1 2.9z" fill="#d97757"/>
+      <text x="480" y="112" text-anchor="middle" font-size="10" fill="#1b1917" font-weight="bold">Claude en marcha</text>
+      <text x="480" y="145" text-anchor="middle" font-size="10" fill="#6b6459">Más → Iniciar Claude</text>
+    </svg>
+  </div>
+
+  <div class="note"><strong>Guarda bien</strong> los códigos de recuperación que te enseñe la app al activar el código de 6 dígitos: son tu llave de repuesto si algún día cambias de teléfono.</div>
+
+  <div class="foot-tag"><span>Claude Code for iPhone · Guía de instalación</span><span>Paso 4 de 6</span></div>
+</section>
+
+<!-- ==================== PASO 5 ==================== -->
+<section class="page">
+  <div class="step-head">
+    <div class="step-num">5</div>
+    <div class="step-title">
+      <h2>Enlazar GitHub</h2>
+      <p class="strap">Para que cada cambio quede guardado con copia de seguridad.</p>
+    </div>
+  </div>
+  <hr class="rule">
+
+  <p class="plain">El servidor y GitHub tienen que darse la mano una sola vez. Después, todo lo demás es automático.</p>
+
+  <ol class="pasos">
+    <li><strong>Copia la clave del servidor</strong> — en la app, entra en la pantalla de GitHub: verás la <strong>clave SSH pública</strong> del servidor con un botón de copiar. Es un texto largo que empieza por <code class="inline">ssh-ed25519</code>. Es la «huella dactilar» del servidor y no es secreta.</li>
+    <li><strong>Pégala en GitHub</strong> — en <code class="inline">github.com</code>, ve a <strong>Settings → SSH and GPG keys → New SSH key</strong>, pega la clave, ponle un nombre («Mi servidor Claude») y guarda.</li>
+    <li><strong>Guarda el token de solo lectura</strong> — crea en GitHub un token de <strong>solo lectura</strong> (fine-grained, con permiso únicamente de lectura de repositorios) y pégalo en la app donde te lo pide. Sirve para que el desplegable de proyectos muestre tu lista de repositorios.</li>
+    <li><strong>Activa el guardado automático</strong> — enciende el interruptor de <strong>autoguardado</strong> en la app. Desde ese momento, cada cambio sube solo a una rama móvil y se fusiona en main.</li>
+  </ol>
+
+  <div class="diagram no-break">
+    <svg width="560" height="150" viewBox="0 0 560 150" font-family="ui-monospace,Menlo,monospace" aria-label="El servidor se presenta a GitHub con su clave">
+      <!-- servidor -->
+      <rect x="25" y="30" width="150" height="90" rx="12" fill="#fbfaf7" stroke="#1b1917" stroke-width="2"/>
+      <rect x="42" y="44" width="116" height="16" rx="4" fill="none" stroke="#1b1917" stroke-width="2"/>
+      <rect x="42" y="66" width="116" height="16" rx="4" fill="none" stroke="#1b1917" stroke-width="2"/>
+      <circle cx="50" cy="52" r="2.5" fill="#d97757"/>
+      <circle cx="50" cy="74" r="2.5" fill="#d97757"/>
+      <text x="100" y="105" text-anchor="middle" font-size="10" fill="#6b6459">tu servidor</text>
+
+      <!-- llave viajando -->
+      <path d="M205 75h150" stroke="#d97757" stroke-width="3" stroke-dasharray="8 6"/>
+      <path d="M355 75l-11-7v14z" fill="#d97757"/>
+      <g transform="translate(245,38)">
+        <circle cx="12" cy="12" r="9" fill="#fdf1ec" stroke="#d97757" stroke-width="2.5"/>
+        <path d="M19 19l22 -2M34 17l1 8M27 18l1 6" stroke="#d97757" stroke-width="2.5" fill="none" stroke-linecap="round" transform="rotate(45 12 12)"/>
+      </g>
+      <text x="280" y="30" text-anchor="middle" font-size="10" fill="#6b6459">clave SSH pública</text>
+
+      <!-- GitHub -->
+      <rect x="385" y="30" width="150" height="90" rx="12" fill="#fbfaf7" stroke="#1b1917" stroke-width="2"/>
+      <circle cx="460" cy="62" r="17" fill="none" stroke="#1b1917" stroke-width="2.5"/>
+      <circle cx="452" cy="59" r="2" fill="#1b1917"/>
+      <circle cx="468" cy="59" r="2" fill="#1b1917"/>
+      <path d="M452 70q8 6 16 0" fill="none" stroke="#1b1917" stroke-width="2.5" stroke-linecap="round"/>
+      <text x="460" y="105" text-anchor="middle" font-size="10" fill="#6b6459">Settings → SSH keys</text>
+    </svg>
+  </div>
+
+  <div class="note"><strong>Tranquilidad:</strong> la clave que pegas en GitHub es la <em>pública</em>. La privada nunca sale del servidor, igual que la tuya de Face ID nunca sale del iPhone.</div>
+
+  <div class="foot-tag"><span>Claude Code for iPhone · Guía de instalación</span><span>Paso 5 de 6</span></div>
+</section>
+
+<!-- ==================== PASO 6 ==================== -->
+<section class="page">
+  <div class="step-head">
+    <div class="step-num">6</div>
+    <div class="step-title">
+      <h2>Listo: esto ya funciona solo</h2>
+      <p class="strap">Lo que la app hace sin que tú toques nada, y los mandos por si algún día hicieran falta.</p>
+    </div>
+  </div>
+  <hr class="rule">
+
+  <p class="plain">Enhorabuena: la instalación ha terminado. A partir de ahora, todo esto ocurre solo:</p>
+
+  <ul class="check">
+    <li><strong>Autoguardado</strong> — cada cambio que hace Claude se sube a una rama móvil de tu GitHub, con fecha y hora.</li>
+    <li><strong>Fusión a main</strong> — cuando el trabajo está bien, se fusiona automáticamente a la rama principal.</li>
+    <li><strong>Puesta al día</strong> — al abrir un proyecto, el servidor comprueba si hay novedades en GitHub y se pone al día. El semáforo de la app te lo muestra en verde.</li>
+    <li><strong>Autodespliegue</strong> — la propia app se actualiza sola desde GitHub: cada mejora llega a tu servidor sin que hagas nada.</li>
+  </ul>
+
+  <div class="diagram no-break">
+    <svg width="560" height="120" viewBox="0 0 560 120" font-family="ui-monospace,Menlo,monospace" aria-label="El ciclo automático">
+      <circle cx="110" cy="60" r="34" fill="#fdf1ec" stroke="#d97757" stroke-width="2"/>
+      <text x="110" y="57" text-anchor="middle" font-size="10" fill="#1b1917" font-weight="bold">Claude</text>
+      <text x="110" y="72" text-anchor="middle" font-size="9" fill="#6b6459">trabaja</text>
+
+      <path d="M152 60h66" stroke="#d97757" stroke-width="3"/><path d="M218 60l-10-6v12z" fill="#d97757"/>
+
+      <circle cx="280" cy="60" r="34" fill="#fbfaf7" stroke="#1b1917" stroke-width="2"/>
+      <text x="280" y="57" text-anchor="middle" font-size="10" fill="#1b1917" font-weight="bold">GitHub</text>
+      <text x="280" y="72" text-anchor="middle" font-size="9" fill="#6b6459">guarda</text>
+
+      <path d="M322 60h66" stroke="#d97757" stroke-width="3"/><path d="M388 60l-10-6v12z" fill="#d97757"/>
+
+      <circle cx="450" cy="60" r="34" fill="#fdf1ec" stroke="#d97757" stroke-width="2"/>
+      <text x="450" y="57" text-anchor="middle" font-size="10" fill="#1b1917" font-weight="bold">main</text>
+      <text x="450" y="72" text-anchor="middle" font-size="9" fill="#6b6459">al día</text>
+
+      <path d="M450 102q-170 30 -340 0" stroke="#6b6459" stroke-width="2" fill="none" stroke-dasharray="6 5"/>
+      <path d="M108 104l11-3-7-9z" fill="#6b6459"/>
+      <text x="280" y="115" text-anchor="middle" font-size="9" fill="#6b6459">y vuelta a empezar, solo</text>
+    </svg>
+  </div>
+
+  <p class="plain">Para el día a día no necesitas nada más. Estos mandos son solo por si alguna vez quieres mirar bajo el capó (se escriben conectado al servidor con <code class="inline">ssh root@TU_IP</code>):</p>
+
+  <table class="cmds no-break">
+    <tr><th>Mando</th><th>Qué hace</th></tr>
+    <tr><td>systemctl status claude-movil</td><td>Te dice si la app está funcionando (busca la palabra «active» en verde).</td></tr>
+    <tr><td>systemctl restart claude-movil</td><td>Reinicia la app. El equivalente a «apagar y volver a encender».</td></tr>
+    <tr><td>journalctl -u claude-movil -n 50</td><td>Enseña las últimas 50 líneas del diario, por si hay que contar qué pasó.</td></tr>
+    <tr><td>df -h /</td><td>Muestra cuánto disco queda libre en el servidor.</td></tr>
+  </table>
+
+  <div class="note"><strong>Regla de oro:</strong> si algo se comporta raro, primero reinicia la app con el segundo mando. Arregla el 90&nbsp;% de los sustos.</div>
+
+  <div class="foot-tag"><span>Claude Code for iPhone · Guía de instalación</span><span>Paso 6 de 6</span></div>
+</section>
+
+<!-- ==================== SOPORTE ==================== -->
+<section class="page support">
+  <svg width="64" height="64" viewBox="0 0 32 32" fill="#d97757" aria-hidden="true">
+    <path d="M16 1.6l2.9 9.1 9.1-2.9-6.2 7.2 6.2 7.2-9.1-2.9-2.9 9.1-2.9-9.1-9.1 2.9 6.2-7.2-6.2-7.2 9.1 2.9z"/>
+  </svg>
+  <h2>¿Atascado en algún paso?</h2>
+  <p style="color:#6b6459;max-width:13cm;margin:0 auto">
+    Escríbenos contando en qué paso estás y qué mensaje te sale en pantalla
+    (una foto con el móvil vale perfectamente). Respondemos en cuanto podemos.
+  </p>
+  <a class="mail" href="mailto:pedro@prevencion.cc">pedro@prevencion.cc</a>
+  <p style="color:#6b6459;font-size:.85rem">Soporte incluido en la cuota de mantenimiento de 9,99&nbsp;€/año.</p>
+
+  <div class="legal">
+    <strong>Aviso:</strong> producto independiente desarrollado por un tercero. Claude y Claude Code
+    son marcas de Anthropic&nbsp;PBC; este producto no está afiliado a, ni respaldado por, Anthropic.
+  </div>
+</section>
+
+</body>
+</html>
